@@ -1,0 +1,33 @@
+import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import os
+
+# Load the trained model
+model_path = os.path.join('model', 'bloodcells.h5')
+model = load_model(model_path)
+
+# Function to load and preprocess an image
+def preprocess_image(img_path, target_size=(224, 224)):
+    img = image.load_img(img_path, target_size=target_size)
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)  # Convert to batch format
+    img_array /= 255.0  # Normalize to [0, 1]
+    return img_array
+
+# Prediction function
+def predict_image(img_path):
+    processed_image = preprocess_image(img_path)
+    predictions = model.predict(processed_image)
+    
+    # If you have class labels like ['RBC', 'WBC', 'Platelet'], modify accordingly
+    class_labels = ['RBC', 'WBC', 'Platelet']
+    predicted_class = class_labels[np.argmax(predictions)]
+    
+    print(f"Predicted class: {predicted_class}")
+    return predicted_class
+
+# Example usage
+if __name__ == "__main__":
+    image_path = 'uploads/test_image.jpg'  # Replace with the path to your image
+    predict_image(image_path)
